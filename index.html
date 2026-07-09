@@ -9,9 +9,9 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="theme-color" content="#000000">
-  <meta property="og:title" content="イーノック・ハッキング">
-  <meta property="og:description" content="東京造形大学の学生が制作した、ハッキングをテーマにしたウェブサイトです。">
-  <title>Hacking...</title>
+  <meta property="og:title" content="イーノック・ハッキング - SYSTEM JAC">
+  <meta property="og:description" content="20秒間の狂気の後に、静寂が訪れる。">
+  <title>SYSTEM OVERRIDE SEQUENCE</title>
   <style>
     html,
     body {
@@ -23,6 +23,7 @@
       overflow: hidden;
       overscroll-behavior: none;
       font-family: "Courier New", monospace;
+      color: #00ff5f;
     }
 
     .screen {
@@ -31,9 +32,9 @@
       width: 100vw;
       height: 100vh;
       height: 100dvh;
-      /* モバイルのアドレスバー分を除いた実表示高さ */
       overflow: hidden;
       touch-action: none;
+      perspective: 1000px;
     }
 
     .photo {
@@ -47,13 +48,84 @@
       background-position: center 15%;
       transform-origin: 39% 22%;
       transform: scale(1);
-      transition: transform 2.5s ease-in-out, filter 2.5s ease-in-out;
       filter: brightness(0.75) contrast(1.05);
+      z-index: 1;
+      will-change: transform, filter;
     }
 
-    .photo.zoom {
-      transform: scale(3.6);
+    /* 【大暴れモード】激しい3Dシェイクと歪み */
+    .photo.panic {
+      animation:
+        fatalZoomShake 0.12s infinite alternate,
+        fatalColorCorruption 1.5s step-end infinite;
+    }
+
+    /* 【すんモード】拡大されたままピタッと静止（ガビガビも消える） */
+    .photo.freeze {
+      transform: scale(3.6) translate(0, 0) rotate(0deg);
       filter: brightness(0.9) contrast(1.1) saturate(1.1);
+      animation: none;
+      transition: filter 0.5s ease;
+    }
+
+    @keyframes fatalZoomShake {
+      0% {
+        transform: scale(3.5) translate(0px, 0px) rotateX(0deg) rotateY(0deg) skew(0deg, 0deg);
+      }
+
+      20% {
+        transform: scale(3.8) translate(-25px, 20px) rotateX(15deg) rotateY(-10deg) skew(5deg, -5deg);
+      }
+
+      40% {
+        transform: scale(3.2) translate(30px, -25px) rotateX(-15deg) rotateY(15deg) skew(-8deg, 4deg);
+      }
+
+      60% {
+        transform: scale(4.1) translate(-35px, -15px) rotateX(20deg) rotateY(-20deg) skew(12deg, -12deg);
+      }
+
+      80% {
+        transform: scale(3.6) translate(15px, 35px) rotateX(-15deg) rotateY(10deg) skew(-4deg, 8deg);
+      }
+
+      100% {
+        transform: scale(3.9) translate(-20px, -30px) rotateX(8deg) rotateY(-15deg) skew(8deg, -4deg);
+      }
+    }
+
+    @keyframes fatalColorCorruption {
+      0% {
+        filter: brightness(1.5) contrast(200%) saturate(300%) hue-rotate(0deg);
+      }
+
+      14% {
+        filter: invert(1) brightness(2) contrast(300%) saturate(500%) hue-rotate(90deg);
+      }
+
+      28% {
+        filter: brightness(0.5) contrast(500%) saturate(1000%) hue-rotate(180deg) sepia(100%);
+      }
+
+      42% {
+        filter: brightness(3) contrast(100%) saturate(200%) hue-rotate(270deg) blur(1px);
+      }
+
+      56% {
+        filter: invert(0.8) brightness(1.2) contrast(400%) saturate(600%) hue-rotate(45deg);
+      }
+
+      70% {
+        filter: brightness(0.2) contrast(1000%) saturate(0%) blur(3px);
+      }
+
+      84% {
+        filter: brightness(2) contrast(200%) saturate(1000%) hue-rotate(-90deg);
+      }
+
+      100% {
+        filter: invert(1) brightness(2.5) contrast(250%) saturate(300%) blur(2px);
+      }
     }
 
     .scanline {
@@ -64,21 +136,83 @@
       height: 100%;
       pointer-events: none;
       background: repeating-linear-gradient(to bottom,
-          rgba(0, 255, 70, 0.04) 0px,
-          rgba(0, 255, 70, 0.04) 1px,
-          transparent 2px,
-          transparent 3px);
+          rgba(0, 255, 70, 0.08) 0px,
+          rgba(0, 255, 70, 0.08) 2px,
+          transparent 3px,
+          transparent 4px);
       mix-blend-mode: screen;
+      z-index: 2;
     }
 
-    .vignette {
+    /* Matrix Rain Canvas */
+    #matrixCanvas {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
+      z-index: 3;
+      opacity: 0;
       pointer-events: none;
-      box-shadow: inset 0 0 180px rgba(0, 0, 0, 0.85);
+      mix-blend-mode: screen;
+      transition: opacity 0.3s ease;
+    }
+
+    #matrixCanvas.show {
+      opacity: 0.75;
+    }
+
+    /* 高速スクロールするターミナルログ */
+    #terminalLog {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: calc(100% - 20px);
+      height: calc(100% - 160px);
+      color: #ff2b2b;
+      font-size: 11px;
+      line-height: 1.2;
+      overflow: hidden;
+      z-index: 4;
+      opacity: 0;
+      text-shadow: 0 0 5px red;
+      pointer-events: none;
+      word-wrap: break-word;
+    }
+
+    #terminalLog.show {
+      opacity: 1;
+    }
+
+    #terminalLog.freeze {
+      color: #00ff5f;
+      text-shadow: 0 0 3px #00ff5f;
+      opacity: 0.6;
+    }
+
+    /* レッドフラッシュ（警告） */
+    .red-flash {
+      position: absolute;
+      inset: 0;
+      background: red;
+      mix-blend-mode: overlay;
+      opacity: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .red-flash.panic {
+      animation: panicFlash 0.08s infinite alternate;
+    }
+
+    @keyframes panicFlash {
+      0% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 0.6;
+      }
     }
 
     .overlay {
@@ -88,26 +222,41 @@
       width: 100%;
       padding: 40px 24px 60px;
       box-sizing: border-box;
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 20%, rgba(0, 0, 0, 0));
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 20%, rgba(0, 0, 0, 0));
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 18px;
-      z-index: 5;
+      z-index: 10;
     }
 
     .status-text {
       color: #00ff5f;
       font-size: clamp(16px, 4.5vw, 26px);
       letter-spacing: 1px;
-      text-shadow: 0 0 8px rgba(0, 255, 95, 0.8), 0 0 2px #00ff5f;
-      animation: blink 0.9s steps(1) infinite;
+      text-shadow: 0 0 10px rgba(0, 255, 95, 0.9), 0 0 2px #00ff5f;
+      animation: blink 0.7s steps(1) infinite;
     }
 
-    .status-text.done {
+    /* 大暴れ中のステータス */
+    .status-text.panic {
+      animation: panicBlink 0.08s steps(1) infinite;
+      color: #fff;
+      background-color: #ff0000;
+      padding: 4px 14px;
+      text-shadow: none;
+      font-weight: bold;
+    }
+
+    /* 「すん」とした後のステータス */
+    .status-text.freeze {
       animation: none;
-      color: #ff2b2b;
-      text-shadow: 0 0 10px rgba(255, 40, 40, 0.9);
+      color: #00ff5f;
+      background-color: transparent;
+      padding: 0;
+      text-shadow: 0 0 8px #00ff5f;
+      font-weight: normal;
+      letter-spacing: 2px;
     }
 
     @keyframes blink {
@@ -119,55 +268,118 @@
 
       50%,
       100% {
-        opacity: 0.15;
+        opacity: 0.2;
+      }
+    }
+
+    @keyframes panicBlink {
+      0% {
+        opacity: 1;
+        transform: scale(1.1) skew(-6deg) translate(-3px, 3px);
+      }
+
+      50% {
+        opacity: 0;
+        transform: scale(1.2) skew(6deg) translate(3px, -3px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1.05) skew(-3deg) translate(0px, 0px);
       }
     }
 
     .bar-wrap {
       width: min(520px, 85vw);
-      height: 22px;
-      border: 2px solid #00ff5f;
-      border-radius: 4px;
-      box-shadow: 0 0 10px rgba(0, 255, 95, 0.6);
-      padding: 3px;
+      height: 24px;
+      border: 3px solid #00ff5f;
+      border-radius: 5px;
+      box-shadow: 0 0 12px rgba(0, 255, 95, 0.7);
+      padding: 4px;
       box-sizing: border-box;
-      background: rgba(0, 20, 0, 0.5);
+      background: rgba(0, 30, 0, 0.6);
     }
 
-    .bar-wrap.done {
+    .bar-wrap.panic {
       border-color: #ff2b2b;
-      box-shadow: 0 0 12px rgba(255, 40, 40, 0.7);
+      box-shadow: 0 0 25px rgba(255, 0, 0, 1);
+      animation: shakeBar 0.06s infinite;
+    }
+
+    .bar-wrap.freeze {
+      border-color: #00ff5f;
+      box-shadow: 0 0 8px rgba(0, 255, 95, 0.5);
+      animation: none;
+    }
+
+    @keyframes shakeBar {
+      0% {
+        transform: translate(2px, 1px);
+      }
+
+      50% {
+        transform: translate(-2px, -1px);
+      }
+
+      100% {
+        transform: translate(1px, -2px);
+      }
     }
 
     .bar-fill {
       height: 100%;
       width: 0%;
-      background: repeating-linear-gradient(45deg,
-          #00ff5f,
-          #00ff5f 8px,
-          #00cc4a 8px,
-          #00cc4a 16px);
-      border-radius: 2px;
-      transition: width 3s linear, background 0.4s ease;
+      background: repeating-linear-gradient(45deg, #00ff5f, #00ff5f 10px, #00cc4a 10px, #00cc4a 20px);
+      border-radius: 3px;
+      transition: width 3s linear, background 0.5s ease;
     }
 
-    .bar-fill.done {
-      background: repeating-linear-gradient(45deg,
-          #ff2b2b,
-          #ff2b2b 8px,
-          #cc0000 8px,
-          #cc0000 16px);
+    .bar-fill.panic {
+      background: #ff2b2b;
+      transition: none;
+      animation: glitchBarFill 0.15s infinite;
+    }
+
+    .bar-fill.freeze {
+      width: 100%;
+      background: #00ff5f;
+      animation: none;
+    }
+
+    @keyframes glitchBarFill {
+      0% {
+        width: 100%;
+        background: #ff0000;
+      }
+
+      50% {
+        width: 96%;
+        background: #fff;
+      }
+
+      100% {
+        width: 100%;
+        background: #000;
+      }
     }
 
     .percent {
       color: #00ff5f;
-      font-size: 14px;
+      font-size: 16px;
       letter-spacing: 2px;
-      opacity: 0.9;
+      opacity: 0.95;
     }
 
-    .percent.done {
-      color: #ff2b2b;
+    .percent.panic {
+      color: #fff;
+      font-weight: bold;
+      animation: panicBlink 0.08s infinite;
+    }
+
+    .percent.freeze {
+      color: #00ff5f;
+      animation: none;
+      font-weight: normal;
     }
   </style>
 </head>
@@ -177,7 +389,9 @@
   <div class="screen">
     <div class="photo" id="photo"></div>
     <div class="scanline"></div>
-    <div class="vignette"></div>
+    <canvas id="matrixCanvas"></canvas>
+    <div id="terminalLog"></div>
+    <div class="red-flash" id="redFlash"></div>
 
     <div class="overlay">
       <div class="status-text" id="statusText">あなたのデバイスをハッキング中...</div>
@@ -194,58 +408,273 @@
     const barWrap = document.getElementById('barWrap');
     const percentText = document.getElementById('percentText');
     const photo = document.getElementById('photo');
+    const matrixCanvas = document.getElementById('matrixCanvas');
+    const terminalLog = document.getElementById('terminalLog');
+    const redFlash = document.getElementById('redFlash');
+
+    // シーケンス状態のトラッキング
+    let currentPhase = 'loading'; // 'loading', 'panic', 'freeze'
+    let currentPct = 0;
+
+    // --- Web Audio API (SE生成) ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    let panicOsc;
+    let panicGain;
+    let panicIntervalId;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // 短い電子音（ハッキング進行中）
+    function playBeep(freq, duration) {
+      if (!audioCtx || audioCtx.state === 'suspended') return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    // パニック時の激しいノイズ・アラーム音
+    function startPanicAudio() {
+      if (!audioCtx || audioCtx.state === 'suspended') return;
+      if (panicOsc) return; // 二重再生防止
+
+      panicOsc = audioCtx.createOscillator();
+      panicGain = audioCtx.createGain();
+      panicOsc.type = 'sawtooth';
+      panicGain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+
+      panicOsc.connect(panicGain);
+      panicGain.connect(audioCtx.destination);
+      panicOsc.start();
+
+      panicIntervalId = setInterval(() => {
+        if (panicOsc) {
+          panicOsc.frequency.setValueAtTime(200 + Math.random() * 2500, audioCtx.currentTime);
+        }
+      }, 40);
+    }
+
+    // システム掌握完了のクリアな音
+    function stopPanicAudio() {
+      if (panicOsc) {
+        try { panicOsc.stop(); } catch (e) { }
+        panicOsc.disconnect();
+        panicOsc = null;
+      }
+      if (panicIntervalId) {
+        clearInterval(panicIntervalId);
+        panicIntervalId = null;
+      }
+    }
+
+    function playSuccessAudio() {
+      stopPanicAudio();
+      if (!audioCtx || audioCtx.state === 'suspended') return;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+
+      osc.frequency.setValueAtTime(1500, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 1.5);
+
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 2.5);
+    }
+
+    // 画面のどこかを触った瞬間にオーディオ＆フルスクリーンのロックを解除
+    function unlockInteractiveEffects() {
+      initAudio();
+      requestFS();
+
+      // もしすでにパニックモードに突入していたら、即座に音声を鳴らし始める
+      if (currentPhase === 'panic') {
+        startPanicAudio();
+      } else if (currentPhase === 'freeze') {
+        // すでに終わっていたら最後のピーンという音だけ鳴らす
+        playSuccessAudio();
+      }
+    }
+
+    // ---------------------------------
+
+    // Matrix Rain
+    const ctx = matrixCanvas.getContext('2d');
+    let letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほ';
+    letters = letters.split('');
+    let fontSize = 14;
+    let columns, drops;
+    let matrixAnimationId;
+
+    function initMatrix() {
+      matrixCanvas.width = window.innerWidth;
+      matrixCanvas.height = window.innerHeight;
+      columns = matrixCanvas.width / fontSize;
+      drops = [];
+      for (let x = 0; x < columns; x++) drops[x] = 1;
+    }
+
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+      ctx.fillStyle = '#0F0';
+      ctx.font = fontSize + 'px monospace';
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+      matrixAnimationId = requestAnimationFrame(drawMatrix);
+    }
+    window.addEventListener('resize', initMatrix);
+
+    // Fake Terminal Logs
+    const dummyLogs = [
+      "DELETING /SYSTEM/OS/KERNEL32.DLL ... OK",
+      "OVERWRITING MBR (MASTER BOOT RECORD) ... SUCCESS",
+      "UPLOADING ALL_PASSWORDS.TXT TO REMOTE ... DONE",
+      "FATAL ERROR: HOST FIREWALL CRUSHED VIA INJECTION",
+      "ACCESSING FRONT WEBCAM ... STREAM INITIATED",
+      "CORRUPTING NVRAM_STORAGE_BLOCK_0x9F ...",
+      "0x000000FF MEMORY LEAK OVERFLOW IN PROGRESS",
+      "WIPING USER PICTURES AND DIRECTORIES ... 42%",
+      "[CRITICAL] DEVICE OWNERSHIP TRANSFERRED TO ENOCH"
+    ];
+
+    let terminalSpamIntervalId;
+    function startTerminalSpam() {
+      terminalSpamIntervalId = setInterval(() => {
+        const randomLog = dummyLogs[Math.floor(Math.random() * dummyLogs.length)];
+        const hexDump = Array.from({ length: 4 }, () => Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0').toUpperCase()).join(' ');
+        terminalLog.innerHTML += `[${new Date().toISOString().substring(11, 23)}] ${randomLog} | ${hexDump}<br>`;
+        terminalLog.scrollTop = terminalLog.scrollHeight;
+        if (terminalLog.innerHTML.length > 6000) terminalLog.innerHTML = terminalLog.innerHTML.slice(-3000);
+      }, 25);
+    }
+
+    // Vibration Loop Tracker
+    let vibrationIntervalId;
+    function startPanicVibration() {
+      if (!navigator.vibrate) return;
+      vibrationIntervalId = setInterval(() => {
+        navigator.vibrate([150, 50, 100, 50]);
+      }, 350);
+    }
 
     function requestFS() {
       const el = document.documentElement;
       const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
-      if (req) {
-        try { req.call(el); } catch (e) { /* ユーザー操作を伴わない場合ブラウザにより失敗することがある */ }
-      }
+      if (req) { try { req.call(el); } catch (e) { } }
     }
 
+    // Sequence Control (ページロード時に自動実行)
     function startSequence() {
-      // start bar fill
-      requestAnimationFrame(() => {
-        barFill.style.width = '100%';
-      });
+      requestAnimationFrame(() => { barFill.style.width = '100%'; });
 
-      // percentage counter in sync (approx 3s)
-      let pct = 0;
       const interval = setInterval(() => {
-        pct += 2;
-        if (pct >= 100) {
-          pct = 100;
+        currentPct += 2;
+        if (currentPct >= 100) {
+          currentPct = 100;
           clearInterval(interval);
         }
-        percentText.textContent = pct + '%';
+        percentText.textContent = currentPct + '%';
+
+        // 進捗ビープ音（すでに画面をタップしてアンロックされている場合のみ鳴ります）
+        if (currentPct % 10 === 0 && currentPct < 100) {
+          playBeep(400 + (currentPct * 8), 0.08);
+        }
       }, 60);
 
-      // after 3s -> done state
+      // --- 3秒後：ハッキング完了。大暴れ（パニック）モード開始 ---
       setTimeout(() => {
-        statusText.textContent = 'ハッキング完了';
-        statusText.classList.add('done');
-        barWrap.classList.add('done');
-        barFill.classList.add('done');
-        percentText.classList.add('done');
-        percentText.textContent = '100%';
+        currentPhase = 'panic';
+        statusText.textContent = 'SYSTEM FATAL ERROR';
+        statusText.className = 'status-text panic';
+        barWrap.className = 'bar-wrap panic';
+        barFill.className = 'bar-fill panic';
+        percentText.className = 'percent panic';
+        percentText.textContent = 'ERR_JACK';
 
-        // zoom into face shortly after completion
+        photo.classList.add('panic');
+        redFlash.classList.add('panic');
+
+        initMatrix();
+        matrixCanvas.classList.add('show');
+        drawMatrix();
+
+        terminalLog.classList.add('show');
+        startTerminalSpam();
+        startPanicVibration();
+
+        // パニックサウンドの再生を試みる（タップ済みならここで鳴る）
+        startPanicAudio();
+
+        // --- さらに20秒後：パニック終了、「すん」モードへ移行 ---
         setTimeout(() => {
-          photo.classList.add('zoom');
-        }, 500);
+          currentPhase = 'freeze';
+          clearInterval(terminalSpamIntervalId);
+          clearInterval(vibrationIntervalId);
+          cancelAnimationFrame(matrixAnimationId);
+          if (navigator.vibrate) navigator.vibrate(0);
+
+          // サウンドを静寂（完了音）へ移行
+          playSuccessAudio();
+
+          photo.classList.remove('panic');
+          photo.classList.add('freeze');
+
+          redFlash.classList.remove('panic');
+          matrixCanvas.classList.remove('show');
+
+          terminalLog.classList.add('freeze');
+
+          statusText.textContent = '[STATUS: CONNECTION ESTABLISHED]';
+          statusText.className = 'status-text freeze';
+
+          barWrap.className = 'bar-wrap freeze';
+          barFill.className = 'bar-fill freeze';
+
+          percentText.textContent = 'CLOSED';
+          percentText.className = 'percent freeze';
+
+          terminalLog.innerHTML += `<br><span style="color:#00ff5f; font-weight:bold;">[SUCCESS] ALL SYSTEMS SECURED. BACKDOOR ACTIVE. COMPLETED.</span>`;
+          terminalLog.scrollTop = terminalLog.scrollHeight;
+
+        }, 20000); // 大暴れ持続時間：20秒
+
       }, 3000);
     }
 
-    // 読み込み直後に自動開始（NFCタグ経由での起動を想定）
-    requestFS();
-    startSequence();
+    // 読み込み完了と同時に、問答無用でビジュアルシーケンスを開始！
+    window.addEventListener('DOMContentLoaded', () => {
+      startSequence();
+    });
 
-    // 一部ブラウザはジェスチャーなしのfullscreen要求を拒否するため、
-    // 最初のタッチ/クリックでも念のため再試行する
-    document.addEventListener('touchstart', requestFS, { once: true, passive: true });
-    document.addEventListener('click', requestFS, { once: true });
+    // ユーザーが画面のどこかを初めて触った瞬間に、ブラウザの制限を突破させて「爆音＆フルスクリーン」にする
+    document.addEventListener('click', unlockInteractiveEffects, { once: true });
+    document.addEventListener('touchstart', unlockInteractiveEffects, { once: true });
+
   </script>
-
 </body>
 
 </html>
