@@ -2,6 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#000000">
 <title>Hacking...</title>
 <style>
   html, body {
@@ -11,14 +16,18 @@
     height: 100%;
     background: #000;
     overflow: hidden;
+    overscroll-behavior: none;
     font-family: "Courier New", monospace;
   }
 
   .screen {
-    position: relative;
+    position: fixed;
+    inset: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh; /* モバイルのアドレスバー分を除いた実表示高さ */
     overflow: hidden;
+    touch-action: none;
   }
 
   .photo {
@@ -175,36 +184,55 @@
   const percentText = document.getElementById('percentText');
   const photo = document.getElementById('photo');
 
-  // start bar fill
-  requestAnimationFrame(() => {
-    barFill.style.width = '100%';
-  });
-
-  // percentage counter in sync (approx 3s)
-  let pct = 0;
-  const interval = setInterval(() => {
-    pct += 2;
-    if (pct >= 100) {
-      pct = 100;
-      clearInterval(interval);
+  function requestFS() {
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if (req) {
+      try { req.call(el); } catch (e) { /* ユーザー操作を伴わない場合ブラウザにより失敗することがある */ }
     }
-    percentText.textContent = pct + '%';
-  }, 60);
+  }
 
-  // after 3s -> done state
-  setTimeout(() => {
-    statusText.textContent = 'ハッキング完了';
-    statusText.classList.add('done');
-    barWrap.classList.add('done');
-    barFill.classList.add('done');
-    percentText.classList.add('done');
-    percentText.textContent = '100%';
+  function startSequence() {
+    // start bar fill
+    requestAnimationFrame(() => {
+      barFill.style.width = '100%';
+    });
 
-    // zoom into face shortly after completion
+    // percentage counter in sync (approx 3s)
+    let pct = 0;
+    const interval = setInterval(() => {
+      pct += 2;
+      if (pct >= 100) {
+        pct = 100;
+        clearInterval(interval);
+      }
+      percentText.textContent = pct + '%';
+    }, 60);
+
+    // after 3s -> done state
     setTimeout(() => {
-      photo.classList.add('zoom');
-    }, 500);
-  }, 3000);
+      statusText.textContent = 'ハッキング完了';
+      statusText.classList.add('done');
+      barWrap.classList.add('done');
+      barFill.classList.add('done');
+      percentText.classList.add('done');
+      percentText.textContent = '100%';
+
+      // zoom into face shortly after completion
+      setTimeout(() => {
+        photo.classList.add('zoom');
+      }, 500);
+    }, 3000);
+  }
+
+  // 読み込み直後に自動開始（NFCタグ経由での起動を想定）
+  requestFS();
+  startSequence();
+
+  // 一部ブラウザはジェスチャーなしのfullscreen要求を拒否するため、
+  // 最初のタッチ/クリックでも念のため再試行する
+  document.addEventListener('touchstart', requestFS, { once: true, passive: true });
+  document.addEventListener('click', requestFS, { once: true });
 </script>
 
 </body>
